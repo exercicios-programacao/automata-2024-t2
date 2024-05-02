@@ -1,100 +1,57 @@
-def load_automata(filename):
-	if isinstance(filename, str):
-            try:
-                with open(filename) as arquivo:
-                    linhas = arquivo.readlines()
-                    # faz a leitura das linhas e verifica se o arquivo possui 5 linhas
-        
-                    # inicializa uma lista para armazenar as transições
-                    transicoes = []
-        
-                    if len(linhas) < 5:
-                        raise Exception("Arquivo não contém suficientes linhas para representar um autômato")
-                    # faz a extração das informações do arquivo na parte do alfabeto
-                    alfabeto = tuple(linhas[0].strip().split(" "))
-                    estados = tuple(linhas[1].strip().split(" "))
-                    # faz a extração dos estados finais, garantindo que estão presentes nos estados,
-                    #se não retorna erro que os estados não estão presentes
-                    estadosFinais = tuple(estado for estado in linhas[2].strip().split(" ") if estado in estados)
-                    estadoIncial = linhas[3].strip() 
+def load_automata(filename: str):
+	try:
+		with open(filename, encoding="utf-8") as arquivo:
+			linhas = arquivo.readlines()
+			
+			transicoes = {}
 
-                    # processa as linhas restantes como regras de transição
-                    for linha in linhas[4:]:
-                        transicao = tuple(linha.strip().split(" "))
+			if len(linhas) < 5:
+				raise ValueError("Arquivo não contém suficientes linhas para representar um autômato")
 
-                    if len(transicao) < 3 or transicao[0] not in estados or transicao[1] not in alfabeto or transicao[2] not in estados:
-                        raise Exception("Transição não determinística não encontrada")
-                    print(f"{transicao} é o correto.")
-        
-                    # Adiciona a regra de transição à lista de transições
-                    transicoes.append(transicao)
-        
-                    return{
-                        "Alfabeto": alfabeto,
-                        "Estado:": estados,
-                        "Estados Finais: ": estadosFinais, 
-                        "Estado Inicial": estadoIncial,
-                        "Transição: ": transicoes,
-                    }
-            except FileNotFoundError as e:
-                raise Exception(f"Arquivo {filename} não encontrado") from e
-        else:
-            raise Exception("Tipo de argumento esperado: string")
+			alfabeto = linhas[0].strip().split(" ")
+			estados = linhas[1].strip().split(" ")
+			estadosFinais = linhas[2].strip().split(" ")
+			estadoIncial = linhas[3].strip(" ")
+
+			for linha in linhas[4:]:
+				transicao = linha.strip().split(" ")
+
+				if len(transicao) < 3 or transicao[0] not in estados or transicao[1] not in alfabeto or transicao[2] not in estados:
+					raise ValueError("Transição não determinística não encontrada")
+				print(f"{transicao} é o correto.")
+
+			return alfabeto, estados, estadosFinais, estadoIncial, transicoes
+
+	except FileNotFoundError as e:
+		raise ValueError(f"Arquivo {filename} não encontrado") from e
+
 
 def process(automata, word):
-	words = tuple(word)
+	alfabeto, estados, estadosFinais, estadoIncial, transicoes = automata
 
-	# faz a verificação se o autônomo é um dict e se a palavra uma list
-	if isinstance (automata, dict) and isinstance(word, list):
-		for words in word:
-			if not isinstance(words, str):
-				raise Exception("necessário ser do tipo str")
-	else:
-		raise Exception(" ")
-
-	try:
-		alfabeto = automata['alfabeto']
-		estados = automata['estados']
-		estadosFinais = automata['estadosFinais']
-		estadoIncial = automata['estadoIncial']
-		transicoes = automata['transicoes']
-	except KeyError as e:
-		raise Exception(" ") from e
-
-	# inicializa uma lista para armazenar as verificações
 	verifica = []
-	# aqui faz a conversão da lista de palavras em uma tupla
+	try:
+		for words in word:
+			palavra = tuple(words)
 
-	# reforça sobre cada palavra na tupla de palavras
-	for word in words:
-		resultado = None
-		# inicializa o estado atual com o estado inicial
-		estadoAtual = estadoIncial
-		# reforça sobre cada simbolo na palavra
-		for simbolo in word:
-			if resultado:
-				break
-		# faz a verificação se o simbolo é valido
-			if simbolo not in alfabeto:
-				resultado = (word, 'INVALIDA')
-				verifica.append(resultado)
-				break
-		# itera sobre as regras de transição para encontrar a próxima transição
-			for transicao in transicoes:
-				if transicao[0] == estadoAtual and transicao[1] == simbolo:
-					estadoAtual = transicao[2]
+			for simbolo in palavra:
+				if simbolo not in alfabeto:
+					verifica[words] = "INVÁLIDA"
 					break
 			else:
-				resultado = (word, 'REJEITA')
-				verifica.append(resultado)
-				break
-		else:
-			# Verifica se o estado atual é um estado final ou não e adiciona a resposta à lista
-			if estadoAtual in estadosFinais:
-				resultado = (word, 'ACEITA')
-				verifica.append(resultado)
-			else:
-				resultado = (word, 'REJEITA')
-				verifica.append(resultado)
-	else:
-		return verifica
+				estadoAtual = estadoIncial
+				for simbolo in palavra:
+					if simbolo in transicoes.get[estadoAtual, []]:
+						estadoAtual = transicoes[estadoAtual][simbolo]
+					else:
+						verifica[words] = "REJEITA"
+						break
+				else:
+					if estadoAtual in estadosFinais:
+						verifica[words] = "ACEITA"
+					else:
+						verifica[words] = "REJEITA"
+	except Exception as e:
+		raise ValueError(f"Erro ao processar palavra {word}: {e}") from e
+		
+	return verifica
