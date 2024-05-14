@@ -1,6 +1,7 @@
 """Implementação de autômatos finitos."""
 from collections import namedtuple
 #import os
+from typing import List
 def load_automata(filename):
     #print("load_automata")
     """
@@ -302,8 +303,40 @@ def DescricaoautomataValida(automata):
         return Statusautomata
 def convert_to_dfa(automata):
     """Converte um NFA num DFA."""
-    
-"""
+    automata["simbolos"].extend("&")
+    caminhoDoAutonomo=""
+    Estados = automata.get("estados"):
+    EstadoInicial = str(automata.get("NomeEstadoInicial"))
+    estadosFinais = str(automata.get("estadosFinais"))
+    simbolos = str(automata.get("simbolos"))
+    RegrasTransicao = namedtuple("RegrasTransicao",["origem" , "símbolo", "destino"])
+    regras=automata.get("RegrasTransicao")
+    NovaRegrasTransicao = namedtuple("RegrasTransicao",["origem" , "símbolo", "destino"])
+    NovalistaRegras = []
+    for(es in Estados):
+        #Novo estado para unificar as transições com mesma saida
+        nes = []
+        for(sim in simbolos):
+            for r in regras[0] == es &&
+                     regras[1] == sim :
+                if r[2] not in nes:
+                    nes.append(r[2])                                            
+            else:
+                if len(nes)>1:
+                    strNES= ""
+                    boolEsFinal = False
+                    for es in nes:
+                        strNES = strNES + str(es)
+                        if(es in estadosFinais)
+                            boolEsFinal = True
+                    NovaRegras = NovaRegrasTransicao(es,sim,strNES)
+                    automata["estados"].extend(strNES)
+                    if(boolEsFinal):
+                        automata["estadosFinais"].extend(strNES)
+                else:
+                    NovaRegras = NovaRegrasTransicao(es,sim,nes) 
+                NovalistaRegras.append(NovaRegras)
+#"""
 def main():
     #caminhoPasta = os.getcwd()
     #filename = caminhoPasta + "/Testes/01-simples.txt"
@@ -311,4 +344,4 @@ def main():
     filename = "teste.txt"
     load_automata(filename)
 main()
-"""
+#"""
