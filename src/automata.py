@@ -316,6 +316,7 @@ def convert_to_dfa(automata):
     for(es in Estados):
         #Novo estado para unificar as transições com mesma saida
         nes = []
+        nesNdes = []
         for(sim in simbolos):
             for r in regras[0] == es &&
                      regras[1] == sim :
@@ -329,6 +330,7 @@ def convert_to_dfa(automata):
                         strNES = strNES + str(es)
                         if(es in estadosFinais)
                             boolEsFinal = True
+                    nesNdes.append(tuple((nes,strNES)))
                     NovaRegras = NovaRegrasTransicao(es,sim,strNES)
                     automata["estados"].extend(strNES)
                     if(boolEsFinal):
@@ -336,6 +338,18 @@ def convert_to_dfa(automata):
                 else:
                     NovaRegras = NovaRegrasTransicao(es,sim,nes) 
                 NovalistaRegras.append(NovaRegras)
+    else:
+        #percorre a lista de tuplas
+        #com lista dos nomes de estados que contem o novo estado
+        # e string do nome novo estado
+        for(esDes in nesNdes):
+            #percorre lista com cada estado que esta no nome do novo estado
+            for(EsDoNovoEstado in esDes[0]):
+                for(regras in NovalistaRegras[0]==EsDoNovoEstado): 
+                    NovaRegras = NovaRegrasTransicao(esDes[1],regras[1],regras[2]) 
+                    NovalistaRegras.append(NovaRegras)
+                    #falta resolver possiveis inderterministicos criados agora com os novos estados
+                    #falta arrumar origem e destino quando é simbolo de vazio
 #"""
 def main():
     #caminhoPasta = os.getcwd()
