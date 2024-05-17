@@ -313,10 +313,12 @@ def convert_to_dfa(automata):
     regras=automata.get("RegrasTransicao")
     NovaRegrasTransicao = namedtuple("RegrasTransicao",["origem" , "símbolo", "destino"])
     NovalistaRegras = []
+    nesNdes = []
     for(es in Estados):
+        cont = cont + 1
+        qtdEstados = len(Estados)
         #Novo estado para unificar as transições com mesma saida
         nes = []
-        nesNdes = []
         for(sim in simbolos):
             for r in regras[0] == es &&
                      regras[1] == sim :
@@ -338,6 +340,43 @@ def convert_to_dfa(automata):
                 else:
                     NovaRegras = NovaRegrasTransicao(es,sim,nes) 
                 NovalistaRegras.append(NovaRegras)
+        #Apos criar os novos estados
+        #arrumar origem e destino quando é simbolo de vazio
+        if(cont==qtdEstados):
+            for(rVazio in NovalistaRegras[1]=="&"):
+                nes = []
+                nes.append(rVazio[0])
+                nes.append(rVazio[2])
+                strNVEs = str(rVazio[0]) + str(rVazio[2])
+def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
+    VarControle = 0
+    #ANTIGO NovalistaRegras
+    #ANTIGO rVazio
+    for(rSeqVazio in listaRegras[0] == destino):
+        if VarControle == 0:
+            if not len((rIF in rSeqVazio[1] != "&"))>0:
+                for(rSeqVazio2 in (rSeqVazio[1] == "&")):
+                    #ANTIGO NES
+                    listaEs.append(rSeqVazio[2])
+                    #ANTIGO strNVEs
+                    strNovoEs = str(strNovoEs) + str(rSeqVazio2[2])
+                    VarControle = 1
+                    ret = VerificaSeqDestinoVazio(rSeqVazio2[2],strNovoEs,listaEs,listaRegras)
+                    if ret != 0:
+                        if(ret>len(2):
+                            return tuple(ret[-2],ret[-1])
+                        else:
+                            return tuple(listaEs,strNovoEs)
+                    break
+        else:
+            break
+    return 0 
+                    ret = VerificaSeqDestinoVazio(rVazio,strNVEs,nes,NovalistaRegras)
+                NovaRegras = NovaRegrasTransicao(rVazio[0],"&",strNVEs) 
+                NovalistaRegras.append(NovaRegras)
+                if(tuple((nes,strNES))not in nesNdes):
+                    nesNdes.append(tuple((nes,strNES)))
+                
     else:
         #percorre a lista de tuplas
         #com lista dos nomes de estados que contem o novo estado
@@ -349,7 +388,6 @@ def convert_to_dfa(automata):
                     NovaRegras = NovaRegrasTransicao(esDes[1],regras[1],regras[2]) 
                     NovalistaRegras.append(NovaRegras)
                     #falta resolver possiveis inderterministicos criados agora com os novos estados
-                    #falta arrumar origem e destino quando é simbolo de vazio
 #"""
 def main():
     #caminhoPasta = os.getcwd()
