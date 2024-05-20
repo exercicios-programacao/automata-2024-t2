@@ -3,7 +3,6 @@ from collections import namedtuple
 #import os
 from typing import List
 def load_automata(filename):
-    #print("load_automata")
     """
     Lê os dados de um autômato finito a partir de um arquivo.
 
@@ -324,27 +323,24 @@ def convert_to_dfa(automata):
             for r in regras[0] == es &&
                      regras[1] == sim :
                 if r[2] not in nes:
-                    nes.append(r[2])                                            
+                    nes.append(r[2])                                         
             else:
                 if len(nes)>1:
                     strNES= ""
                     boolEsFinal = False
                     for es in nes:
                         strNES = strNES + str(es)
-                        if(es in estadosFinais)
-                            boolEsFinal = True
+                    verificaEsInicialFinal(nes,strNES,automata)
                     nesNdes.append(tuple((nes,strNES)))
                     NovaRegras = NovaRegrasTransicao(es,sim,strNES)
                     automata["estados"].extend(strNES)
-                    if(boolEsFinal):
-                        automata["estadosFinais"].extend(strNES)
                 else:
                     NovaRegras = NovaRegrasTransicao(es,sim,nes) 
                 NovalistaRegras.append(NovaRegras)
         #Apos criar os novos estados
         #arrumar origem e destino quando é simbolo de vazio
         if(cont == qtdEstados):
-            for(rVazio in NovalistaRegras[1]=="&"):
+            for(rVazio in NovalistaRegras[1] == "&"):
                 nes = []
                 nes.append(rVazio[0])
                 nes.append(rVazio[2])
@@ -354,10 +350,15 @@ def convert_to_dfa(automata):
                     NovaRegras = NovaRegrasTransicao(rVazio[0],"&",ret[1])
                     if(tuple((ret[0],ret[1]))not in nesNdes):
                         nesNdes.append(tuple((ret[0],ret[1])))
+                        if len(listaNovosEstados)>1:
+                            verificaEsInicialFinal(ret[0],ret[1],automata)
                 else:
                     NovaRegras = NovaRegrasTransicao(rVazio[0],"&",strNVEs)
                     if(tuple((nes,strNES))not in nesNdes):
                         nesNdes.append(tuple((nes,strNES)))
+                        verificaEsInicialFinal(nes,strNES,automata)
+                        if(ret[1] not in automata["estados"]):
+                            automata["estados"].extend(strNES)
                 NovalistaRegras.append(NovaRegras)
     else:
         #percorre a lista de tuplas
@@ -366,7 +367,7 @@ def convert_to_dfa(automata):
         for(esDes in nesNdes):
             #percorre lista com cada estado que esta no nome do novo estado
             for(EsDoNovoEstado in esDes[0]):
-                for(regras in NovalistaRegras[0]==EsDoNovoEstado): 
+                for(regras in NovalistaRegras[0] == EsDoNovoEstado): 
                     NovaRegras = NovaRegrasTransicao(esDes[1],regras[1],regras[2]) 
                     NovalistaRegras.append(NovaRegras)
                     #falta resolver possiveis inderterministicos criados agora com os novos estados
@@ -395,7 +396,27 @@ def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
         else:
             break
     return 0
-#"""
+def verificaEsInicialFinal(listaNovosEstados,strEstadoNovo,automata):
+    if len(listaNovosEstados)>1:
+        boolEsFinal = False
+        boolEsInicial = False
+        for es in listaNovosEstados:
+            if(es in automata["estadosFinais"]):
+                boolEsFinal = True
+            if(esInicial in automata["NomeEstadoInicial"]):
+                boolEsInicial = True
+            if(boolEsFinal && boolEsInicial):
+                break
+    else:
+        return 0
+    if(boolEsFinal):
+        automata["estadosFinais"].extend(strEstadoNovo)
+    if(boolEsInicial):
+        automata["NomeEstadoInicial"].extend(strEstadoNovo)
+    if(strEstadoNovo not in automata["estados"]):
+        automata["estados"].extend(strEstadoNovo])
+return 0
+"""
 def main():
     #caminhoPasta = os.getcwd()
     #filename = caminhoPasta + "/Testes/01-simples.txt"
@@ -403,4 +424,4 @@ def main():
     filename = "teste.txt"
     load_automata(filename)
 main()
-#"""
+"""
