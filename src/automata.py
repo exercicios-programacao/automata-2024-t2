@@ -372,6 +372,8 @@ def convert_to_dfa(automata):
                     NovalistaRegras.append(NovaRegras)
                     #falta resolver possiveis inderterministicos criados agora com os novos estados
                     #falta arrumar(verificar e inserir e remover) o autonomo (estados ,estados iniciais e finais)
+    automata["RegrasTransicao"]=[]
+    automata["RegrasTransicao"]=[NovalistaRegras]
 def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
     VarControle = 0
     #ANTIGO NovalistaRegras
