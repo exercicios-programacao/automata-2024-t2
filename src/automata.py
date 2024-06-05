@@ -82,6 +82,8 @@ def load_automata(filename):
         else:
             automata["RegrasTransicao"].extend(listaRegras)
         pass
+    #print("autoamoamaomaoaom")
+    #print(automata)
     convert_to_dfa(automata)
     #print(automata)
     retStatusautomata = DescricaoautomataValida(automata)
@@ -193,7 +195,8 @@ def VerificaPalavra(palavra,simbolos):
         return tuple((palavra,"INVALIDA"))
 def DescricaoautomataValida(automata):
     #print("DescricaoautomataValida")
-    #print(automata)
+    print(automata)
+    #print('11111111111111111111111111')
     if (automata.get("simbolos")!=""
         and len(automata.get("estados"))>0
         and len(automata.get("estadosFinais"))>0
@@ -241,25 +244,25 @@ def DescricaoautomataValida(automata):
                     break
                     return Statusautomata
         RegrasTransicao = namedtuple("RegrasTransicao",["origem" , "simbolo", "destino"])
-        regras=automata.get("RegrasTransicao")
+        regras = automata.get("RegrasTransicao")
         #print(regras)
         ListDistintaEstados = []
         ListDistintaSimbolos = []
         for r in regras:
-            print(r[0]+" - " + r[1] +" - "+r[2])
-            if r[0] not in ListDistintaEstados:
-                ListDistintaEstados.append(r[0])
-            if r[1] not in ListDistintaSimbolos:
-                ListDistintaSimbolos.append(r[1])
-            if r[2] not in ListDistintaEstados:
-                ListDistintaEstados.append(r[2])
-        #print(ListDistintaEstados)
+                #print(r[0]+" - " + r[1] +" - "+r[2])
+                if r[0] not in ListDistintaEstados:
+                    ListDistintaEstados.append(r[0])
+                if r[1] not in ListDistintaSimbolos:
+                    ListDistintaSimbolos.append(r[1])
+                if r[2] not in ListDistintaEstados:
+                    ListDistintaEstados.append(r[2])
+        print(ListDistintaEstados)
         #print(ListDistintaSimbolos)
         #print(automata.get("simbolos"))
         cont=0
         for esL in ListDistintaEstados:
             for es in automata.get("estados"):
-                if(esL in es):
+                if str(esL) in es:
                     #se existe o estado nas regras de transição e na lista de estados soma-se 1
                     cont+=1
                     Statusautomata="VALIDO"
@@ -272,6 +275,8 @@ def DescricaoautomataValida(automata):
             try:
                 raise NameError("EstadosDaRegraTransisao")
             except NameError:
+                #print('aaa')
+                #print(ListDistintaEstados)
                 print("Os Estados da regra de transição Nem todos São validos")
                 raise
             Statusautomata="INVALIDO"
@@ -323,15 +328,19 @@ def convert_to_dfa(automata):
         r1 = []
         contS = len(simbolos)
         for sim in simbolos:
-            print(regras[1])
-            print(simbolos)
-            print(str(sim))
+            print('ab')
+            print(regras)
+            #print(simbolos)
+            #print(str(sim))
             #erro aqui
-            for r1 in regras[0][1] in str(sim):
-                for r in r1[0] == es:
+            for r in regras:
+                if r[1] == str(sim) and r[0] == es:
                     if r[2] not in nes:
-                        nes.append(r[2])                                         
+                        print('destino')
+                        print(r[2])
+                        nes.append(r[2])                                        
             else:
+                #print('teste1212')
                 if len(nes)>1:
                     strNES= ""
                     boolEsFinal = False
@@ -342,52 +351,59 @@ def convert_to_dfa(automata):
                     NovaRegras = NovaRegrasTransicao(es,sim,strNES)
                     automata["estados"].extend(strNES)
                 else:
-                    NovaRegras = NovaRegrasTransicao(es,sim,nes) 
-                NovalistaRegras.append(NovaRegras)
+                    if nes != []:
+                        print('destino2')
+                        print(nes)
+                        NovaRegras = NovaRegrasTransicao(es,sim,nes) 
+                    NovalistaRegras.append(NovaRegras)
             contS=-1
             if contS == -1:
                 break
         #Apos criar os novos estados
         #arrumar origem e destino quando é simbolo de vazio
         if(cont == qtdEstados):
-            for rVazio in NovalistaRegras[1] == "&":
-                nes = []
-                nes.append(rVazio[0])
-                nes.append(rVazio[2])
-                strNVEs = str(rVazio[0]) + str(rVazio[2]) 
-                ret = VerificaSeqDestinoVazio(rVazio,strNVEs,nes,NovalistaRegras)
-                if ret != 0:
-                    NovaRegras = NovaRegrasTransicao(rVazio[0],"&",ret[1])
-                    if tuple((ret[0],ret[1]))not in nesNdes:
-                        nesNdes.append(tuple((ret[0],ret[1])))
-                        if len(listaNovosEstados)>1:
-                            verificaEsInicialFinal(ret[0],ret[1],automata)
-                else:
-                    NovaRegras = NovaRegrasTransicao(rVazio[0],"&",strNVEs)
-                    if(tuple((nes,strNES))not in nesNdes):
-                        nesNdes.append(tuple((nes,strNES)))
-                        verificaEsInicialFinal(nes,strNES,automata)
-                        if(ret[1] not in automata["estados"]):
-                            automata["estados"].extend(strNES)
-                NovalistaRegras.append(NovaRegras)
-    else:
-        #percorre a lista de tuplas
-        #com lista dos nomes de estados que contem o novo estado
-        # e string do nome novo estado
-        for esDes in nesNdes:
-            #percorre lista com cada estado que esta no nome do novo estado
-            for EsDoNovoEstado in esDes[0]:
-                for regras in NovalistaRegras[0] == EsDoNovoEstado: 
-                    NovaRegras = NovaRegrasTransicao(esDes[1],regras[1],regras[2]) 
+            for rnova in NovalistaRegras:
+                if rnova[1] == "&":
+                    nes = []
+                    nes.append(rnova[0])
+                    nes.append(rnova[2])
+                    strNVEs = str(rnova[0]) + str(rnova[2]) 
+                    ret = VerificaSeqDestinoVazio(rnova,strNVEs,nes,NovalistaRegras)
+                    if ret != 0:
+                        NovaRegras = NovaRegrasTransicao(rnova[0],"&",ret[1])
+                        if tuple((ret[0],ret[1]))not in nesNdes:
+                            nesNdes.append(tuple((ret[0],ret[1])))
+                            if len(listaNovosEstados)>1:
+                                verificaEsInicialFinal(ret[0],ret[1],automata)
+                    else:
+                        NovaRegras = NovaRegrasTransicao(rnova[0],"&",strNVEs)
+                        if(tuple((nes,strNES))not in nesNdes):
+                            nesNdes.append(tuple((nes,strNES)))
+                            verificaEsInicialFinal(nes,strNES,automata)
+                            if(ret[1] not in automata["estados"]):
+                                automata["estados"].extend(strNES)
                     NovalistaRegras.append(NovaRegras)
-                    #falta resolver possiveis inderterministicos criados agora com os novos estados
-                    #falta arrumar(verificar e inserir e remover) o autonomo (estados ,estados iniciais e finais)
+            else:
+                #percorre a lista de tuplas
+                #com lista dos nomes de estados que contem o novo estado
+                # e string do nome novo estado
+                for esDes in nesNdes:
+                    #print(nesNdes)
+                    #percorre lista com cada estado que esta no nome do novo estado
+                    #print(esDes[0])
+                    for EsDoNovoEstado in esDes[0]:
+                        for regras in NovalistaRegras:
+                            if regras[0] == EsDoNovoEstado:
+                                NovaRegras = NovaRegrasTransicao(esDes[1],regras[1],regras[2]) 
+                                NovalistaRegras.append(NovaRegras)
+                            #falta resolver possiveis inderterministicos criados agora com os novos estados
+                            #falta arrumar(verificar e inserir e remover) o autonomo (estados ,estados iniciais e finais)
     automata["RegrasTransicao"] = []
-    automata["RegrasTransicao"] = [NovalistaRegras]
+    automata["RegrasTransicao"] = NovalistaRegras
 def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
     VarControle = 0
     #ANTIGO NovalistaRegras
-    #ANTIGO rVazio
+    #ANTIGO rnova
     for rSeqVazio in listaRegras[0] == destino:
         if VarControle == 0:
             if not len((rIF in rSeqVazio[1] != "&"))>0:
@@ -399,6 +415,8 @@ def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
                     VarControle = 1
                     ret = ret+ VerificaSeqDestinoVazio(rSeqVazio2[2],strNovoEs,listaEs,listaRegras)
                     if ret != 0:
+                        #print('retorno')
+                        #print(ret)
                         #verificar se os retornos concatena certo as tuples ou modificar para lista de tuples
                         if ret>len(2):
                             return tuple(ret[-2],ret[-1])
@@ -415,7 +433,7 @@ def verificaEsInicialFinal(listaNovosEstados,strEstadoNovo,automata):
         for es in listaNovosEstados:
             if es in automata["estadosFinais"]:
                 boolEsFinal = True
-            if esInicial in automata["NomeEstadoInicial"]:
+            if es in automata["NomeEstadoInicial"]:
                 boolEsInicial = True
             if boolEsFinal and boolEsInicial:
                 break
