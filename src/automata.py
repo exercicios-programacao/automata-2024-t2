@@ -466,10 +466,29 @@ def convert_to_dfa(automata):
                                 NovalistaRegras.append(NovaRegras)
                             #falta resolver possiveis inderterministicos criados agora com os novos estados
                             #falta arrumar(verificar e inserir e remover) o autonomo (estados ,estados iniciais e finais)
+                        #######################################
+                        ### parei nessa parte de deletar o estados
+                        #######################################
+                        #delete dos estados originais apos unificação
+                        #bkp do automato estados 
+                        atualizaEstados = automata["estados"]
+                        #nova lista de estados que vai substituir os velhos estados deletando os que foram unificados
+                        atuestados = []
+                        for EsDoNovoEstado in esDes[0]:
+                            for esNovo in atualizaEstados:
+                            #print(automata["estados"])
+                            #print(EsDoNovoEstado)
+                                #se for diferente eu quero manter na lista
+                                #se for igual eu quero deleta da lista
+                                if esNovo not in EsDoNovoEstado:
+                                    if esNovo not in atuestados:
+                                        atuestados.append(esNovo)    
+                        automata.update({"estados": atuestados})
     #print("-------------")
-    #print(automata["estados"])
+    print(automata["estados"])
     regras = automata.get("RegrasTransicao")
     print("------------------")
+    print(automata["estados"])
     for novasregras in regras:
         print(novasregras[0] + " -- " + novasregras[1] + " -- " + novasregras[2])
     print("------------------")
@@ -532,11 +551,11 @@ def verificaEsInicialFinal(listaNovosEstados,strEstadoNovo,automata):
         automata["estados"].extend([strEstadoNovo])
     return 0
 #"""
-#def main():
+def main():
     #caminhoPasta = os.getcwd()
     #filename = caminhoPasta + "/Testes/01-simples.txt"
     #filename = ".\\Testes\\05-invalido.txt"
-    #filename = "teste.txt"
-    #load_automata(filename)
-#main()
+    filename = "teste.txt"
+    load_automata(filename)
+main()
 #"""
