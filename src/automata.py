@@ -1,3 +1,6 @@
+"""Implementação de autômatos finitos."""
+
+
 def load_automata(filename: str):
     """
     Lê os dados de um autômato finito a partir de um arquivo.
@@ -110,22 +113,20 @@ def process(automata, words):
 
 
 def convert_to_dfa(automata):
-    """Converte um NFA num DFA."""
+    """Convert um NFA num DFA."""
     q, sigma, delta, q0, f = automata
-    
     dfa_q = set()
     dfa_delta = {}
     dfa_f = []
     dfa_q0 = (q0,)
-    
     estados_pendentes = [dfa_q0]
     estados_processados = set()
-    
+
     while estados_pendentes:
         estado_atual = estados_pendentes.pop()
         estados_processados.add(estado_atual)
         dfa_q.add(estado_atual)
-        
+
         for simbolo in sigma:
             if simbolo == '&':
                 continue
@@ -142,11 +143,11 @@ def convert_to_dfa(automata):
                 if estado_atual not in dfa_delta:
                     dfa_delta[estado_atual] = {}
                 dfa_delta[estado_atual][simbolo] = novos_estados
-                if not novos_estados in q:
+                if novos_estados not in q:
                     q.append(novos_estados)
-    
+
     for estado in dfa_q:
         if any(sub_estado in f for sub_estado in estado):
             dfa_f.append(estado)
-    
+
     return q, sigma, dfa_delta, q0, dfa_f
