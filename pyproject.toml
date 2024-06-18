@@ -42,6 +42,7 @@ pythonpath = "."
 [tool.pylint.'BASIC']
 # max-line-length = 79
 max-attributes = 10
+disable = "W1514"
 good-names = [
     "i", "j", "k", "x", "y"
 ]
