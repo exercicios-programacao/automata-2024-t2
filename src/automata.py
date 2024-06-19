@@ -109,6 +109,7 @@ def load_automata(filename):
         raise Exception( automata_validate(tuple))
 
 def get_nextState(state, letter, F):
+    F.reverse()
     for transition_rule in F:
         if transition_rule[0] == state and transition_rule[1] == letter:
             return transition_rule[2]
@@ -138,9 +139,9 @@ def processWord(word, automata):
             return "REJEITA"
         if i != len(word) - 1:
             pass
-        #    print(previous_state+", "+letter)
-        #    print("|")
-        #    print("v")
+            print(previous_state+", "+letter)
+            print("|")
+            print("v")
         else:
             print(curr_state+", "+letter)
             if curr_state in delta:
@@ -210,7 +211,8 @@ def convert_to_dfa(automata):
         nextState = get_nextState_NFA(transition_rule[0],transition_rule[1], F)
         if nextState not in new_Sigma:
             new_Sigma.append(nextState)
-    
+    new_Sigma = new_Sigma + Sigma
+
     deleted_in_new_Sigma = []
     for state_1 in new_Sigma:
         for state_2 in new_Sigma:
@@ -247,18 +249,8 @@ def convert_to_dfa(automata):
             if final_state in new_state:
                 final_state = new_state
         new_F.append([initial_state, letter, final_state])
-
-    deleted_index_new_F = []   
-
-    for i, cmp_transition_rule_1 in enumerate(new_F):
-        for j, cmp_transition_rule_2 in enumerate(new_F):
-            if cmp_transition_rule_1 == cmp_transition_rule_2 and i != j:
-                deleted_index_new_F.append(j)
-
-    for deleted_index in deleted_index_new_F:
-        del new_F[deleted_index]
     
-    print(new_Q)       
+    print(new_Q)     
     print(new_Sigma)
     print(new_delta)
     print(new_q0)
@@ -266,8 +258,13 @@ def convert_to_dfa(automata):
 
     return (new_Q, new_Sigma, new_delta, new_q0, new_F)
 
-convert_to_dfa(load_automata("./examples/06-nfa.txt"))
-convert_to_dfa(load_automata("./examples/07-nfa.txt"))
-convert_to_dfa(load_automata("./examples/08-nfa.txt"))
-convert_to_dfa(load_automata("./examples/09-nfa.txt"))
-convert_to_dfa(load_automata("./examples/10-nfa.txt"))
+#convert_to_dfa(load_automata("./examples/06-nfa.txt"))
+#convert_to_dfa(load_automata("./examples/07-nfa.txt"))
+#convert_to_dfa(load_automata("./examples/08-nfa.txt"))
+#convert_to_dfa(load_automata("./examples/09-nfa.txt"))
+#convert_to_dfa(load_automata("./examples/10-nfa.txt"))
+#print(process(convert_to_dfa(load_automata("./examples/02-test.txt")),['a','aa','ba','aab','aba','aaba','ababa','bbaba','aaaabbbbaba']))
+print(process(convert_to_dfa(load_automata("./examples/02-test.txt")),['ababa','aaaabbbbaba']))
+
+# Resultado Esperado: {'': 'REJEITA', 'a': 'REJEITA', 'aa': 'REJEITA', 'ba': 'REJEITA', 'aab': 'REJEITA', 'aba': 'ACEITA', 'aaba': 'ACEITA', 'ababa': 'ACEITA', 'bbaba': 'ACEITA', 'aaaabbbbaba': 'ACEITA'}
+# Resultado obtido:                  {'a': 'REJEITA', 'aa': 'REJEITA', 'ba': 'REJEITA', 'aab': 'REJEITA', 'aba': 'REJEITA', 'aaba': 'REJEITA', 'ababa': 'REJEITA', 'bbaba': 'REJEITA', 'aaaabbbbaba': 'REJEITA'}

@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\OneDrive\OneDrive - Sispro S A Servicos e Tecnologia da Informacao\Área de Trabalho\FACULDADE\Automata_T2\automata-2024-t2\.venv
+set VIRTUAL_ENV=C:\Users\olive\Documents\La Salle\Linguagens Formais e Automatos\automata-2024-t2\.venv
 
 if not defined PROMPT set PROMPT=$P$G
 
