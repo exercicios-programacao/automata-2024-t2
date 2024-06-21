@@ -371,7 +371,8 @@ def convert_to_dfa(automata):
                     novaRegraApartirNES.clear
                     #print('aaaafaff')
                     #print(NovaRegras)
-                    NovalistaRegras.append(NovaRegras)
+                    if NovaRegras not in NovalistaRegras :
+                            NovalistaRegras.append(NovaRegras)
                     if strNES not in automata["estados"]:
                         automata["estados"].extend([strNES])
                         icont+=1
@@ -380,8 +381,9 @@ def convert_to_dfa(automata):
                     if nes != []:
                         #print('destino2')
                         #print(nes[0])
-                        NovaRegras = NovaRegrasTransicao(es,sim,nes[0]) 
-                    NovalistaRegras.append(NovaRegras)
+                        NovaRegras = NovaRegrasTransicao(es,sim,nes[0])
+                        if NovaRegras not in NovalistaRegras :
+                            NovalistaRegras.append(NovaRegras)
                     nes = []
         #print(NovalistaRegras)
         contS=-1

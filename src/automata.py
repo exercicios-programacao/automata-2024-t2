@@ -310,6 +310,7 @@ def DescricaoautomataValida(automata):
         Statusautomata="INVALIDO"
         return Statusautomata
 def convert_to_dfa(automata):
+    icontprint=0
     """Converte um NFA num DFA."""
     automata["simbolos"].extend("&")
     caminhoDoAutonomo=""
@@ -322,19 +323,18 @@ def convert_to_dfa(automata):
     NovaRegrasTransicao = namedtuple("RegrasTransicao",["origem" , "simbolo", "destino"])
     NovalistaRegras = []
     nesNdes = []
-    icont=0
+    icont = 0
     qtdEstados = len(Estados)
+    FlagWordVazia = False
     for es in Estados:
         icont+=1
         #Novo estado para unificar as transições com mesma saida
         nes = []
         contS = len(simbolos)
         for sim in simbolos:
-            #print('ab')
-            #print(regras)
-            #print(type(sim))
-            #print(str(sim))
             for r in regras:
+                if r[2]=="&":
+                    FlagWordVazia = True
                 #if(r[1]==sim):
                     #NovaRegras = NovaRegrasTransicao(r[0],r[1],r[2])
                     #NovalistaRegras.append(NovaRegras)
@@ -353,28 +353,18 @@ def convert_to_dfa(automata):
                         }
                         #print(novaRegraApartirNES)
             else:
-                #print('teste1212')
-                #print(nes)
                 if len(nes)>1:
                     strNES= ""
                     boolEsFinal = False
                     for esNes in nes:
-                        #print("-----")
-                        #print("es  " + str(es))
-                        #print("nes"+str(nes))
                         strNES = strNES + str(esNes)
-                    #print("strNES "+str(strNES))
-                        #print(strNES)
-                    #print("estados")
-                    #print(automata["estados"])
                     verificaEsInicialFinal(nes,strNES,automata)
                     nesNdes.append(tuple((nes,strNES)))
-                    simboloNovaRegra =novaRegraApartirNES.get("simbolo")
+                    simboloNovaRegra = novaRegraApartirNES.get("simbolo")
                     NovaRegras = NovaRegrasTransicao(es,simboloNovaRegra,strNES)
                     novaRegraApartirNES.clear
-                    #print('aaaafaff')
-                    #print(NovaRegras)
-                    NovalistaRegras.append(NovaRegras)
+                    if NovaRegras not in NovalistaRegras:
+                        NovalistaRegras.append(NovaRegras)
                     if strNES not in automata["estados"]:
                         automata["estados"].extend([strNES])
                         icont+=1
@@ -384,7 +374,8 @@ def convert_to_dfa(automata):
                         #print('destino2')
                         #print(nes[0])
                         NovaRegras = NovaRegrasTransicao(es,sim,nes[0]) 
-                    NovalistaRegras.append(NovaRegras)
+                    if NovaRegras not in NovalistaRegras:
+                        NovalistaRegras.append(NovaRegras)
                     nes = []
         contS=-1
         #print('aaa')
@@ -394,96 +385,135 @@ def convert_to_dfa(automata):
         #Apos criar os novos estados
         #arrumar origem e destino quando é simbolo de vazio
         #print(NovalistaRegras)
-        for rnova in NovalistaRegras:
-            #return
-            if rnova[1] == "&":
-                print('aqui')
-                print(rnova)
-                return 
-                nes = []
-                nes.append(rnova[0])
-                nes.append(rnova[2])
-                strNVEs = str(rnova[0]) + str(rnova[2]) 
-                ret = VerificaSeqDestinoVazio(rnova,strNVEs,nes,NovalistaRegras)
-                if ret != 0:
-                    NovaRegras = NovaRegrasTransicao(rnova[0],"&",ret[1])
-                    if tuple((ret[0],ret[1]))not in nesNdes:
-                        nesNdes.append(tuple((ret[0],ret[1])))
-                        if len(listaNovosEstados)>1:
-                            verificaEsInicialFinal(ret[0],ret[1],automata)
-                else:
-                    NovaRegras = NovaRegrasTransicao(rnova[0],"&",strNVEs)
-                    if(tuple((nes,strNES))not in nesNdes):
-                        nesNdes.append(tuple((nes,strNES)))
-                        verificaEsInicialFinal(nes,strNES,automata)
-                        if(strNES not in automata["estados"]):
-                            automata["estados"].extend(strNES)
-                NovalistaRegras.append(NovaRegras)
-            else:
-                #percorre a lista de tuplas
-                #com lista dos nomes de estados que contem o novo estado
-                # e string do nome novo estado
-                #print(qtdEstados)
-                #print(icont)
-                if(icont > qtdEstados):
-                    for esDes in nesNdes:
+        if FlagWordVazia == True:
+            for rnova in NovalistaRegras:
+                #return
+                if rnova[1] == "&":
+                    print('aqui')
+                    print(rnova)
+                    return 
+                    nes = []
+                    nes.append(rnova[0])
+                    nes.append(rnova[2])
+                    strNVEs = str(rnova[0]) + str(rnova[2]) 
+                    ret = VerificaSeqDestinoVazio(rnova,strNVEs,nes,NovalistaRegras)
+                    if ret != 0:
+                        NovaRegras = NovaRegrasTransicao(rnova[0],"&",ret[1])
+                        if tuple((ret[0],ret[1]))not in nesNdes:
+                            nesNdes.append(tuple((ret[0],ret[1])))
+                            if len(listaNovosEstados)>1:
+                                verificaEsInicialFinal(ret[0],ret[1],automata)
+                    else:
+                        NovaRegras = NovaRegrasTransicao(rnova[0],"&",strNVEs)
+                        if(tuple((nes,strNES))not in nesNdes):
+                            nesNdes.append(tuple((nes,strNES)))
+                            verificaEsInicialFinal(nes,strNES,automata)
+                            if(strNES not in automata["estados"]):
+                                automata["estados"].extend(strNES)
+                    if NovaRegras not in NovalistaRegras :
+                        NovalistaRegras.append(NovaRegras)                
+        else:
+            #for novasregras1 in NovalistaRegras:
+            #    print(novasregras1[0] + " -- " + novasregras1[1] + " -- " + novasregras1[2])
+            #percorre a lista de tuplas
+            #com lista dos nomes de estados que contem o novo estado
+            # e string do nome novo estado
+            #print(qtdEstados)
+            #print(icont)
+            #print(Estados)
+            if(icont > qtdEstados):
+                print('cheguei aqui')
+                for esDes in nesNdes:
+                    iicont = 0
+                    for es in Estados:
+                        iicont+=1
+                        #Novo estado para unificar as transições com mesma saida
+                        nes = []
+                        icontS = len(simbolos)
+                        #para mesmo simbolo lista de estados que ler o simbolo
+                        esSim = []
+                        for sim in simbolos:
+                            if icontS == -1:
+                                break
+                            nes = []
+                            print("esdes")
+                            print(esDes[0])
+                            break
+                            for esUnificado in esDes[0]:
+                                #print("esUnificado -"+ str(esUnificado))
+                                for r in NovalistaRegras:
+                                    #if(r[1]==sim):
+                                        #NovaRegras = NovaRegrasTransicao(r[0],r[1],r[2])
+                                        #NovalistaRegras.append(NovaRegras)
+                                    #para o mesmo estado org. e simbolo faz uma lista de estados des.
+                                    #if r[1] == str(sim):
+                                        #if r[0] not in esSim:
+                                            #esSim.append(r[0])
+                                    #percorre lista de estados de cada unificação do estado ex q0q1
+                                    #q0 e q1
+                                        if (r[0] == es or r[0] == esUnificado) and r[1] == str(sim):
+                                            if r[2] not in nes:
+                                                #print('destino')
+                                                #print(r[2])
+                                                nes.append(r[2])
+                            else:
+                                #print(r)
+                                #print(es+"--"+str(nes))
+                                    #print(str(es != esDes)+" + " + "".join(nes)!= es)
+                                    #print(es+"--"+sim+"--"+str(nes))
+                                #if len(nes)>len(esDes):
+                                    #agora so presciso do simbolo o resto pego de outras variaveis
+                                    
+                                    #novaRegraApartirNES={
+                                    #    "origem":es,
+                                    #    "simbolo":sim,
+                                    #    "destino":nes
+                                    #}
+                                    #garanti que a montagem do nome do estado fica na mesma ordem sempre
+                                    strNES = ""
+                                    #Estados = automata.get("estados")
+                                    #print(Estados)
+                                    #for esOrdem in Estados:
+                                    for n in nes:
+                                            #if esOrdem == n:
+                                        strNES = strNES + n
+                                        nes = []
+                                        #if es == "q1q2":
+                                        #    print(strNES)
+                                        if(strNES not in automata["estados"]):
+                                            automata["estados"].extend(strNES)
+                                        NovaRegras = NovaRegrasTransicao(es,sim,strNES)
+                                        #icontprint = icontprint + 1
+                                        #print(icontprint)
+                                        #print(NovaRegras)
+                                        #novaRegraApartirNES.clear
+                                        if NovaRegras not in NovalistaRegras:
+                                            #print(NovaRegras)
+                                            #print(nes)
+                                            NovalistaRegras.append(NovaRegras)
+                                icontS =-1              
+                            #print(esSim)    
+                        #print(novaRegraApartirNES)
                         #print(nesNdes)
                         #percorre lista com cada estado que esta no nome do novo estado
                         #print(esDes[0])
-                        for regras in NovalistaRegras:
+                        #for regras in NovalistaRegras:
                             #regras[0] == origem
                             #print('ab')
                             #print(esDes[1])
-                            novaRegraApartirNES={
-                                    "origem":"",
-                                    "simbolo":regras[1],
-                                    "destino":""
-                            }
-                            for EsDoNovoEstado in esDes[0]:
-                                #print('asss') 
-                                #print(EsDoNovoEstado)
-                                #print(EsDoNovoEstado1)
-                                if regras[0] == EsDoNovoEstado:
-                                    novaRegraApartirNES.update({"origem": esDes[1]})
-                                if regras[2] == EsDoNovoEstado:
-                                    novaRegraApartirNES.update({"destino": esDes[1]})
-                            if novaRegraApartirNES.get("origem")== "":
-                                novaRegraApartirNES.update({"origem": regras[0]})
-                            if novaRegraApartirNES.get("destino")== "":
-                                novaRegraApartirNES.update({"destino": regras[2]})
-                            orig = novaRegraApartirNES.get("origem")
-                            des = novaRegraApartirNES.get("destino")
-                            simbolo = novaRegraApartirNES.get("simbolo")
-                            NovaRegras = NovaRegrasTransicao(orig,simbolo,des)
-                            novaRegraApartirNES.clear
-                            #deleta a regra velha para ...
-                            #inserir a nova regra usando o nome do novo estado unificado
-                            #print(len(NovalistaRegras))
-                            NovalistaRegras.remove(regras)
-                            #print(len(NovalistaRegras))
-                            #print(NovaRegras)
-                            if NovaRegras not in NovalistaRegras:
-                                NovalistaRegras.append(NovaRegras)
+                            #novaRegraApartirNES={
+                            #        "origem":"",
+                            #        "simbolo":regras[1],
+                            #        "destino":""
+                            #}
                             #falta resolver possiveis inderterministicos criados agora com os novos estados
-                            #falta arrumar(verificar e inserir e remover) o autonomo (estados ,estados iniciais e finais)
+                            #falta arrumar(verificar e inserir) o autonomo (estados ,estados iniciais e finais)
                         #######################################
                         ### parei nessa parte de deletar o estados
                         #######################################
                         #delete dos estados originais apos unificação
                         #bkp do automato estados 
-                        atualizaEstados = automata["estados"]
-                        #nova lista de estados que vai substituir os velhos estados deletando os que foram unificados
-                        atuestados = []
-                        for EsDoNovoEstado in esDes[0]:
-                            for esNovo in atualizaEstados:
-                            #print(automata["estados"])
-                            #print(EsDoNovoEstado)
-                                #se for diferente eu quero manter na lista
-                                #se for igual eu quero deleta da lista
-                                if esNovo not in EsDoNovoEstado:
-                                    if esNovo not in atuestados:
-                                        atuestados.append(esNovo)    
-                        automata.update({"estados": atuestados})
+                        #atualizaEstados = automata["estados"]
     #print("-------------")
     print(automata["estados"])
     regras = automata.get("RegrasTransicao")
