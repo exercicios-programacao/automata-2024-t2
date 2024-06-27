@@ -326,14 +326,27 @@ def convert_to_dfa(automata):
     icont = 0
     qtdEstados = len(Estados)
     FlagWordVazia = False
+    FlagMontaDicionarioPorSimbolo = True
+    origemPorSimbolo = []
+    destinoPorSimbolo = []
+    DicRegrasPorSimbolo = {}
     for es in Estados:
         icont+=1
         #Novo estado para unificar as transições com mesma saida
         nes = []
         contS = len(simbolos)
+        #for indexSim,sim in enumerate(simbolos):
         for sim in simbolos:
+            if sim:
+                if FlagMontaDicionarioPorSimbolo:
+                    DicRegrasPorSimbolo["simbolo" + str(sim)] = sim
+                    DicRegrasPorSimbolo["origem" + str(sim)] = []
+                    DicRegrasPorSimbolo["destino" + str(sim)] = []
             for r in regras:
-                if r[2]=="&":
+                if r[1] == str(sim):
+                    origemPorSimbolo.append(r[0])
+                    destinoPorSimbolo.append(r[2])
+                if r[1]=="&":
                     FlagWordVazia = True
                 #if(r[1]==sim):
                     #NovaRegras = NovaRegrasTransicao(r[0],r[1],r[2])
@@ -365,6 +378,8 @@ def convert_to_dfa(automata):
                     novaRegraApartirNES.clear
                     if NovaRegras not in NovalistaRegras:
                         NovalistaRegras.append(NovaRegras)
+                        DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([es])
+                        DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend([strNES])
                     if strNES not in automata["estados"]:
                         automata["estados"].extend([strNES])
                         icont+=1
@@ -376,8 +391,15 @@ def convert_to_dfa(automata):
                         NovaRegras = NovaRegrasTransicao(es,sim,nes[0]) 
                     if NovaRegras not in NovalistaRegras:
                         NovalistaRegras.append(NovaRegras)
+                        DicRegrasPorSimbolo["origem" + str(sim)].extend([es])
+                        DicRegrasPorSimbolo["destino" + str(sim)].extend([nes[0]])
                     nes = []
+                DicRegrasPorSimbolo["origem" + str(sim)].extend(origemPorSimbolo)
+                DicRegrasPorSimbolo["destino" + str(sim)].extend(destinoPorSimbolo)
+                origemPorSimbolo = []
+                destinoPorSimbolo = []
         contS=-1
+        FlagMontaDicionarioPorSimbolo = False
         #print('aaa')
         #if contS == -1:
         #    break
@@ -430,59 +452,46 @@ def convert_to_dfa(automata):
                         #Novo estado para unificar as transições com mesma saida
                         nes = []
                         icontS = len(simbolos)
-                        #para mesmo simbolo lista de estados que ler o simbolo
-                        esSim = []
                         for sim in simbolos:
                             if icontS == -1:
                                 break
-                            nes = []
-                            print("esdes")
-                            print(esDes[0])
-                            break
+                            origemDoSim = DicRegrasPorSimbolo.get("origem" + str(sim))
+                            destinoDoSim = DicRegrasPorSimbolo.get("destino" + str(sim))
+                            nes = verificaDicRegrasPorSimbolo(es,[],sim,DicRegrasPorSimbolo,[])
+                            '''print(esDes[0])
+                            origem - esDes[0]
+                            sim - sim
+                            destino - nova[] que vira str
+                            '''
                             for esUnificado in esDes[0]:
-                                #print("esUnificado -"+ str(esUnificado))
-                                for r in NovalistaRegras:
-                                    #if(r[1]==sim):
-                                        #NovaRegras = NovaRegrasTransicao(r[0],r[1],r[2])
-                                        #NovalistaRegras.append(NovaRegras)
-                                    #para o mesmo estado org. e simbolo faz uma lista de estados des.
-                                    #if r[1] == str(sim):
-                                        #if r[0] not in esSim:
-                                            #esSim.append(r[0])
-                                    #percorre lista de estados de cada unificação do estado ex q0q1
-                                    #q0 e q1
-                                        if (r[0] == es or r[0] == esUnificado) and r[1] == str(sim):
-                                            if r[2] not in nes:
-                                                #print('destino')
-                                                #print(r[2])
-                                                nes.append(r[2])
+                                nes = list(set(nes + verificaDicRegrasPorSimbolo(esUnificado,esDes[0],origemDoSim,destinoDoSim,nes)))
                             else:
-                                #print(r)
-                                #print(es+"--"+str(nes))
-                                    #print(str(es != esDes)+" + " + "".join(nes)!= es)
-                                    #print(es+"--"+sim+"--"+str(nes))
-                                #if len(nes)>len(esDes):
-                                    #agora so presciso do simbolo o resto pego de outras variaveis
-                                    
-                                    #novaRegraApartirNES={
-                                    #    "origem":es,
-                                    #    "simbolo":sim,
-                                    #    "destino":nes
-                                    #}
-                                    #garanti que a montagem do nome do estado fica na mesma ordem sempre
-                                    strNES = ""
-                                    #Estados = automata.get("estados")
-                                    #print(Estados)
-                                    #for esOrdem in Estados:
-                                    for n in nes:
-                                            #if esOrdem == n:
-                                        strNES = strNES + n
+                                if len(nes)>1:
+                                    #print(r)
+                                    #print(es+"--"+str(nes))
+                                        #print(str(es != esDes)+" + " + "".join(nes)!= es)
+                                        #print(es+"--"+sim+"--"+str(nes))
+                                    #if len(nes)>len(esDes):
+                                        #agora so presciso do simbolo o resto pego de outras variaveis
+                                        
+                                        #novaRegraApartirNES={
+                                        #    "origem":es,
+                                        #    "simbolo":sim,
+                                        #    "destino":nes
+                                        #}
+                                        #garanti que a montagem do nome do estado fica na mesma ordem sempre
+                                        strNES = ""
+                                        #Estados = automata.get("estados")
+                                        #print(Estados)
+                                        #for esOrdem in Estados:
+                                        for n in sorted(nes):
+                                            strNES = strNES + n
                                         nes = []
-                                        #if es == "q1q2":
-                                        #    print(strNES)
+                                            #if es == "q1q2":
+                                            #    print(strNES)
                                         if(strNES not in automata["estados"]):
                                             automata["estados"].extend(strNES)
-                                        NovaRegras = NovaRegrasTransicao(es,sim,strNES)
+                                        NovaRegras = NovaRegrasTransicao(esDes[1],sim,strNES)
                                         #icontprint = icontprint + 1
                                         #print(icontprint)
                                         #print(NovaRegras)
@@ -491,7 +500,7 @@ def convert_to_dfa(automata):
                                             #print(NovaRegras)
                                             #print(nes)
                                             NovalistaRegras.append(NovaRegras)
-                                icontS =-1              
+                            icontS =-1              
                             #print(esSim)    
                         #print(novaRegraApartirNES)
                         #print(nesNdes)
@@ -522,10 +531,38 @@ def convert_to_dfa(automata):
     for novasregras in regras:
         print(novasregras[0] + " -- " + novasregras[1] + " -- " + novasregras[2])
     print("------------------")
+    #print(DicRegrasPorSimbolo)
+    for iSim in simbolos:
+        print(DicRegrasPorSimbolo.get("simbolo"+ str(iSim)))
+        print("s\n")
+        print(DicRegrasPorSimbolo.get("origem"+ str(iSim)))
+        print("o\n")
+        print(DicRegrasPorSimbolo.get("destino" + str(iSim)))
+        print("d\n")
+    
     for novasregras1 in NovalistaRegras:
         print(novasregras1[0] + " -- " + novasregras1[1] + " -- " + novasregras1[2])
     automata["RegrasTransicao"] = []
     automata["RegrasTransicao"] = NovalistaRegras
+def verificaDicRegrasPorSimbolo(estado,estadosUnificados,orig,dest,nes):
+    for i,o in enumerate(orig):
+    #o - origem
+        if str(o) == str(estado):
+            if dest[i] not in nes:
+                nes.append(dest[i])
+        else:
+            for esUni in estadosUnificados:
+                if str(o) == esUni:
+                    if dest[i] not in nes:
+                        nes.append(dest[i])
+                        break
+#estado == "q1q2"
+    '''if estado == "q1" and sim == "a" and estadosUnificados != []:
+        print(estadosUnificados)
+        print("------qqq---------")
+        print(nes)
+        print("------qqq------")'''
+    return nes
 def VerificaSeqDestinoVazio(destino,strNovoEs,listaEs,listaRegras):
     VarControle = 0
     #ANTIGO NovalistaRegras
