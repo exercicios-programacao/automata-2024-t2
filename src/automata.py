@@ -343,9 +343,13 @@ def convert_to_dfa(automata):
                     DicRegrasPorSimbolo["origem" + str(sim)] = []
                     DicRegrasPorSimbolo["destino" + str(sim)] = []
             for r in regras:
-                if r[1] == str(sim):
-                    origemPorSimbolo.append(r[0])
-                    destinoPorSimbolo.append(r[2])
+                #r[0] = origem
+                #r[1] = simbolo
+                #r[2] = destino
+                if FlagMontaDicionarioPorSimbolo:
+                    if r[1] == str(sim):
+                        origemPorSimbolo.append(r[0])
+                        destinoPorSimbolo.append(r[2])
                 if r[1]=="&":
                     FlagWordVazia = True
                 #if(r[1]==sim):
@@ -363,32 +367,45 @@ def convert_to_dfa(automata):
                             "origem":r[0],
                             "simbolo":sim,
                             "destino":nes
-                        }
+                        }else:
+                            novaRegraApartirNES={
+                                "origem":r[0],
+                                "simbolo":r[1],
+                                "destino":r[2]
+                            }
                         #print(novaRegraApartirNES)
             else:
+                #busca variaveis para regra do indermistico
+                    simboloNovaRegra = novaRegraApartirNES.get("simbolo")
+                    origemNovaRegra = novaRegraApartirNES.get("origem")
+                    destinoNovaRegra = novaRegraApartirNES.get("destino")
+                    #
                 if len(nes)>1:
                     strNES= ""
                     boolEsFinal = False
-                    for esNes in nes:
+                    for esNes in sorted(nes):
                         strNES = strNES + str(esNes)
                     verificaEsInicialFinal(nes,strNES,automata)
+                    ###começa os problemas
+                    #nesNdes[0]=(["q1","q2"],"q1q2")
+                    #nesNdes = (["q1","q2"],"q1q2"),
+                    #          (["q1","q2"],"q1q2")
+                    
                     nesNdes.append(tuple((nes,strNES)))
-                    simboloNovaRegra = novaRegraApartirNES.get("simbolo")
-                    NovaRegras = NovaRegrasTransicao(es,simboloNovaRegra,strNES)
+                    NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,strNES)
                     novaRegraApartirNES.clear
                     if NovaRegras not in NovalistaRegras:
                         NovalistaRegras.append(NovaRegras)
                         DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([es])
                         DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend([strNES])
-                    if strNES not in automata["estados"]:
-                        automata["estados"].extend([strNES])
+                        #contagem de estados
                         icont+=1
                     nes = []
                 else:
                     if nes != []:
                         #print('destino2')
                         #print(nes[0])
-                        NovaRegras = NovaRegrasTransicao(es,sim,nes[0]) 
+                        NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,destinoNovaRegra) 
                     if NovaRegras not in NovalistaRegras:
                         NovalistaRegras.append(NovaRegras)
                         DicRegrasPorSimbolo["origem" + str(sim)].extend([es])
