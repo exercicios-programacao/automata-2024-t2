@@ -323,7 +323,8 @@ def convert_to_dfa(automata):
     NovaRegrasTransicao = namedtuple("RegrasTransicao",["origem" , "simbolo", "destino"])
     NovalistaRegras = []
     nesNdes = []
-    icont = 0
+    #icont = 0
+    FlagNovoEstado = False
     qtdEstados = len(Estados)
     FlagWordVazia = False
     FlagMontaDicionarioPorSimbolo = True
@@ -331,7 +332,7 @@ def convert_to_dfa(automata):
     destinoPorSimbolo = []
     DicRegrasPorSimbolo = {}
     for es in Estados:
-        icont+=1
+        #icont+=1
         #Novo estado para unificar as transições com mesma saida
         nes = []
         contS = len(simbolos)
@@ -367,22 +368,35 @@ def convert_to_dfa(automata):
                             "origem":r[0],
                             "simbolo":sim,
                             "destino":nes
-                        }else:
-                            novaRegraApartirNES={
-                                "origem":r[0],
-                                "simbolo":r[1],
-                                "destino":r[2]
-                            }
-                        #print(novaRegraApartirNES)
+                        }
+                    else:
+                        novaRegraApartirNES={
+                            "origem":r[0],
+                            "simbolo":r[1],
+                            "destino":r[2]
+                        }#print(novaRegraApartirNES)
             else:
+                #uso apenas dentro da função transferido para la
                 #busca variaveis para regra do indermistico
-                    simboloNovaRegra = novaRegraApartirNES.get("simbolo")
-                    origemNovaRegra = novaRegraApartirNES.get("origem")
-                    destinoNovaRegra = novaRegraApartirNES.get("destino")
-                    #
+                #simboloNovaRegra = novaRegraApartirNES.get("simbolo")
+                #origemNovaRegra = novaRegraApartirNES.get("origem")
+                #destinoNovaRegra = novaRegraApartirNES.get("destino")
+                #
+                #####
+                #formar o srtnes
+                ##
+                ##
+                #
+                #
+                #errooo
+                ####
+                montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo)
+                #
+                #
+                #
+                '''
                 if len(nes)>1:
                     strNES= ""
-                    boolEsFinal = False
                     for esNes in sorted(nes):
                         strNES = strNES + str(esNes)
                     verificaEsInicialFinal(nes,strNES,automata)
@@ -399,7 +413,8 @@ def convert_to_dfa(automata):
                         DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([es])
                         DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend([strNES])
                         #contagem de estados
-                        icont+=1
+                        FlagNovoEstado = True
+                        #icont+=1
                     nes = []
                 else:
                     if nes != []:
@@ -415,6 +430,10 @@ def convert_to_dfa(automata):
                 DicRegrasPorSimbolo["destino" + str(sim)].extend(destinoPorSimbolo)
                 origemPorSimbolo = []
                 destinoPorSimbolo = []
+                '''
+                #
+                #
+                #
         contS=-1
         FlagMontaDicionarioPorSimbolo = False
         #print('aaa')
@@ -460,28 +479,50 @@ def convert_to_dfa(automata):
             #print(qtdEstados)
             #print(icont)
             #print(Estados)
-            if(icont > qtdEstados):
+            #if(icont > qtdEstados):
+            if FlagNovoEstado:
+                FlagNovoEstado = False
                 print('cheguei aqui')
-                for esDes in nesNdes:
-                    iicont = 0
+                nes = []
+                #nesAux =[]
+                for sim in simbolos:
+                    if icontS == -1:
+                        break
+                    origemDoSim = DicRegrasPorSimbolo.get("origem" + str(sim))
+                    destinoDoSim = DicRegrasPorSimbolo.get("destino" + str(sim))
+                    for esDes in nesNdes:
+                        #for iEstados,esUnificado in enumerate(esDes[0]):
+                        #verificaDicRegrasPorSimbolo(
+                        #tuple(lista de estados,"nome do estado")
+                        #
+                        #
+                        nes = verificaDicRegrasPorSimbolo(tuple(esDes[0],esDes[1]),origemDoSim,destinoDoSim)
+                        if len(nes)>1:
+                            strNES= ""
+                            for esNes in sorted(nes):
+                                strNES = strNES + str(esNes)
+                            novaRegraApartirNES={
+                                "origem":esDes[1],
+                                "simbolo":sim,
+                                "destino":strNES
+                            }
+                            montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo)                          
+                '''
+                else:
                     for es in Estados:
-                        iicont+=1
                         #Novo estado para unificar as transições com mesma saida
                         nes = []
                         icontS = len(simbolos)
-                        for sim in simbolos:
-                            if icontS == -1:
-                                break
-                            origemDoSim = DicRegrasPorSimbolo.get("origem" + str(sim))
-                            destinoDoSim = DicRegrasPorSimbolo.get("destino" + str(sim))
-                            nes = verificaDicRegrasPorSimbolo(es,[],sim,DicRegrasPorSimbolo,[])
-                            '''print(esDes[0])
-                            origem - esDes[0]
-                            sim - sim
-                            destino - nova[] que vira str
-                            '''
-                            for esUnificado in esDes[0]:
-                                nes = list(set(nes + verificaDicRegrasPorSimbolo(esUnificado,esDes[0],origemDoSim,destinoDoSim,nes)))
+                        
+                            
+                            
+                            nes = verificaDicRegrasPorSimbolo(tuple([es],es),sim,DicRegrasPorSimbolo,[])
+                            #print(esDes[0])
+                            #origem - esDes[0]
+                            #sim - sim
+                            #destino - nova[] que vira str
+                            
+                            
                             else:
                                 if len(nes)>1:
                                     #print(r)
@@ -540,11 +581,12 @@ def convert_to_dfa(automata):
                         #delete dos estados originais apos unificação
                         #bkp do automato estados 
                         #atualizaEstados = automata["estados"]
+                        #'''
     #print("-------------")
-    print(automata["estados"])
+    #print(automata["estados"])
     regras = automata.get("RegrasTransicao")
     print("------------------")
-    print(automata["estados"])
+    #print(automata["estados"])
     for novasregras in regras:
         print(novasregras[0] + " -- " + novasregras[1] + " -- " + novasregras[2])
     print("------------------")
@@ -561,18 +603,65 @@ def convert_to_dfa(automata):
         print(novasregras1[0] + " -- " + novasregras1[1] + " -- " + novasregras1[2])
     automata["RegrasTransicao"] = []
     automata["RegrasTransicao"] = NovalistaRegras
-def verificaDicRegrasPorSimbolo(estado,estadosUnificados,orig,dest,nes):
+def montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo):
+    FlagNovoEstado = False
+    if len(nes)>1:
+        verificaEsInicialFinal(nes,strNES,automata)
+        ###começa os problemas
+        #nesNdes[0]=(["q1","q2"],"q1q2")
+        #nesNdes = (["q1","q2"],"q1q2"),
+        #          (["q1","q2"],"q1q2")
+        nesNdes.append(tuple((nes,strNES)))
+        simboloNovaRegra = novaRegraApartirNES.get("simbolo")
+        origemNovaRegra = novaRegraApartirNES.get("origem")
+        destinoNovaRegra = novaRegraApartirNES.get("destino")
+        NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,strNES)
+        if NovaRegras not in NovalistaRegras:
+            NovalistaRegras.append(NovaRegras)
+            if FlagMontaDicionarioPorSimbolo == False:
+                DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([origemNovaRegra])
+                DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend([strNES])
+            #contagem de estados
+            FlagNovoEstado = True
+            #icont+=1
+        
+        nes = []
+    else:
+        if nes != []:
+            #print('destino2')
+            #print(nes[0])
+            NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,destinoNovaRegra) 
+        if NovaRegras not in NovalistaRegras:
+            NovalistaRegras.append(NovaRegras)
+            DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([es])
+            DicRegrasPorSimbolo["destino" + str(sim)].extend([nes[0]])
+        nes = []
+        if FlagMontaDicionarioPorSimbolo:
+            DicRegrasPorSimbolo["origem" + str(sim)].extend(origemPorSimbolo)
+            DicRegrasPorSimbolo["destino" + str(sim)].extend(destinoPorSimbolo)
+    origemPorSimbolo = []
+    destinoPorSimbolo = []
+    novaRegraApartirNES.clear
+#
+#Fim Do montaNovoEstadoInserindoRegra#
+#
+#estados unificados é uma tupla com lista de estados e nome final do estado
+#para verifica estado so usar a mesma tupla estados unificados
+def verificaDicRegrasPorSimbolo(estadosUnificados,orig,dest):
+    nesRegrasPorSimbolo = []
     for i,o in enumerate(orig):
     #o - origem
-        if str(o) == str(estado):
-            if dest[i] not in nes:
-                nes.append(dest[i])
-        else:
-            for esUni in estadosUnificados:
-                if str(o) == esUni:
-                    if dest[i] not in nes:
-                        nes.append(dest[i])
-                        break
+        #if str(o) == str(estado):
+        #    if dest[i] not in nes:
+        #        nes.append(dest[i])
+        #else:
+        for esUni in estadosUnificados[0]:
+            if str(o) == esUni:
+                if dest[i] not in nesRegrasPorSimbolo:
+                    nesRegrasPorSimbolo.append(dest[i])
+                    #removido o break por poder aver inumeros destino 
+                    #break
+    return nesRegrasPorSimbolo
 #estado == "q1q2"
     '''if estado == "q1" and sim == "a" and estadosUnificados != []:
         print(estadosUnificados)
