@@ -364,17 +364,18 @@ def convert_to_dfa(automata):
                         nes.append(r[2])
                     if len(nes)>1:
                         #agora so presciso do simbolo o resto pego de outras variaveis
-                        novaRegraApartirNES={
-                            "origem":r[0],
-                            "simbolo":sim,
-                            "destino":nes
-                        }
+                        novaRegraApartirNES={}
+                        novaRegraApartirNES.clear
+                        novaRegraApartirNES.update({"origem":r[0]})
+                        novaRegraApartirNES.update({"simbolo":sim})
+                        novaRegraApartirNES.update({"destino":nes})
                     else:
-                        novaRegraApartirNES={
-                            "origem":r[0],
-                            "simbolo":r[1],
-                            "destino":r[2]
-                        }#print(novaRegraApartirNES)
+                        novaRegraApartirNES={}
+                        novaRegraApartirNES.clear
+                        novaRegraApartirNES.update({"origem":r[0]})
+                        novaRegraApartirNES.update({"simbolo":r[1]})
+                        novaRegraApartirNES.update({"destino":r[2]})
+                        #print(novaRegraApartirNES)
             else:
                 #uso apenas dentro da função transferido para la
                 #busca variaveis para regra do indermistico
@@ -390,7 +391,16 @@ def convert_to_dfa(automata):
                 #
                 #errooo
                 ####
-                montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo)
+                strNES= ""
+                for esNes in sorted(nes):
+                    strNES = strNES + str(esNes)
+                montaNovoEstadoInserindoRegra(nes,strNES,
+                                              novaRegraApartirNES,
+                                              automata,
+                                              nesNdes,
+                                              DicRegrasPorSimbolo,
+                                              NovalistaRegras,
+                                              FlagMontaDicionarioPorSimbolo,origemPorSimbolo,destinoPorSimbolo)
                 #
                 #
                 #
@@ -501,12 +511,13 @@ def convert_to_dfa(automata):
                             strNES= ""
                             for esNes in sorted(nes):
                                 strNES = strNES + str(esNes)
+                                novaRegraApartirNES.clear
                             novaRegraApartirNES={
                                 "origem":esDes[1],
                                 "simbolo":sim,
                                 "destino":strNES
                             }
-                            montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo)                          
+                            montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo,[],[])                          
                 '''
                 else:
                     for es in Estados:
@@ -598,13 +609,17 @@ def convert_to_dfa(automata):
         print("o\n")
         print(DicRegrasPorSimbolo.get("destino" + str(iSim)))
         print("d\n")
-    
     for novasregras1 in NovalistaRegras:
-        print(novasregras1[0] + " -- " + novasregras1[1] + " -- " + novasregras1[2])
+        print(str(novasregras1[0]) + " -- " + str(novasregras1[1]) + " -- " + str(novasregras1[2]))
     automata["RegrasTransicao"] = []
     automata["RegrasTransicao"] = NovalistaRegras
-def montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo):
+def montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNdes,DicRegrasPorSimbolo,NovalistaRegras,FlagMontaDicionarioPorSimbolo,origemPorSimbolo,destinoPorSimbolo):
+    NovaRegrasTransicao = namedtuple("RegrasTransicao",["origem" , "simbolo", "destino"])
     FlagNovoEstado = False
+    #print(novaRegraApartirNES)
+    simboloNovaRegra = novaRegraApartirNES.get("simbolo")
+    origemNovaRegra = novaRegraApartirNES.get("origem")
+    destinoNovaRegra = novaRegraApartirNES.get("destino")
     if len(nes)>1:
         verificaEsInicialFinal(nes,strNES,automata)
         ###começa os problemas
@@ -612,9 +627,7 @@ def montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNde
         #nesNdes = (["q1","q2"],"q1q2"),
         #          (["q1","q2"],"q1q2")
         nesNdes.append(tuple((nes,strNES)))
-        simboloNovaRegra = novaRegraApartirNES.get("simbolo")
-        origemNovaRegra = novaRegraApartirNES.get("origem")
-        destinoNovaRegra = novaRegraApartirNES.get("destino")
+
         NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,strNES)
         if NovaRegras not in NovalistaRegras:
             NovalistaRegras.append(NovaRegras)
@@ -627,18 +640,15 @@ def montaNovoEstadoInserindoRegra(nes,strNES,novaRegraApartirNES,automata,nesNde
         
         nes = []
     else:
-        if nes != []:
-            #print('destino2')
-            #print(nes[0])
-            NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,destinoNovaRegra) 
+        NovaRegras = NovaRegrasTransicao(origemNovaRegra,simboloNovaRegra,destinoNovaRegra) 
         if NovaRegras not in NovalistaRegras:
             NovalistaRegras.append(NovaRegras)
-            DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([es])
-            DicRegrasPorSimbolo["destino" + str(sim)].extend([nes[0]])
+            DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend([origemNovaRegra])
+            DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend([destinoNovaRegra])
         nes = []
         if FlagMontaDicionarioPorSimbolo:
-            DicRegrasPorSimbolo["origem" + str(sim)].extend(origemPorSimbolo)
-            DicRegrasPorSimbolo["destino" + str(sim)].extend(destinoPorSimbolo)
+            DicRegrasPorSimbolo["origem" + str(simboloNovaRegra)].extend(origemPorSimbolo)
+            DicRegrasPorSimbolo["destino" + str(simboloNovaRegra)].extend(destinoPorSimbolo)
     origemPorSimbolo = []
     destinoPorSimbolo = []
     novaRegraApartirNES.clear
